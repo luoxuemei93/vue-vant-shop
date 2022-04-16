@@ -6,12 +6,12 @@
     </div>
     <van-form @submit="onSubmit">
       <van-field
-          v-model="email"
-          type="email"
-          name="email"
-          label="邮箱"
-          placeholder="邮箱"
-          :rules="[{ required: true, message: '请填写邮箱' }]"
+          v-model="userName"
+          type="userName"
+          name="userName"
+          label="账号"
+          placeholder="账号"
+          :rules="[{ required: true, message: '请填写账号' }]"
       />
       <van-field
           v-model="password"
@@ -48,8 +48,10 @@ export default {
 
     // 数据模型
     const state = reactive({
-      email: 'test@a.com',
-      password: '123123'
+      // email: 'test@a.com',
+      // password: '123123'
+      userName: "admin",
+      password: "123456",
     })
 
     // 注册跳转
@@ -57,20 +59,22 @@ export default {
 
     // 提交登录
     const onSubmit = values => {
-      authLogin(values).then(res => {
-        if (res && res.status === 200) {
+      authLogin(values).then(resBody=> {
+        const res = resBody.data;
+        if (res.status == 0) {
           Toast.success('登录成功')
-          window.localStorage.setItem('token', res.data.access_token)
+          window.localStorage.setItem('token', res.token)
+          window.localStorage.setItem('userName', res.userName)
+
           // 更新登录状态和购物车数量
           store.dispatch('updateIsLogin', true)
           store.dispatch('updateCartNum')
-          state.email = ''
+          state.userName = ''
           state.password = ''
           router.back()
         }
       })
     }
-
     return {
       ...toRefs(state), toRegister, onSubmit
     }

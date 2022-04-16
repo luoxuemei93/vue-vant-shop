@@ -2,11 +2,7 @@ import {createRouter, createWebHistory} from 'vue-router'
 import store from 'store/index'
 import {Toast} from "vant"
 
-// import Home from '../views/Home.vue'
 // 使用 vue.config.js 配置的别名
-
-// 首页
-const Home = () => import('views/home/Home')
 // 分类页
 const Category = () => import('views/category/Category')
 // 商品详情
@@ -31,15 +27,6 @@ const Collect = () => import('views/collect/Collect')
 const About = () => import('views/about/About')
 
 const routes = [
-    // 首页
-    {
-        path: '/',
-        name: 'Home',
-        component: Home,
-        meta: {
-            title: 'Vue商城首页'
-        }
-    },
     // 分类页
     {
         path: '/category',
