@@ -1,15 +1,10 @@
 import {request} from "./request"
-
-/*
-前台Api - 商品
-https://www.showdoc.com.cn/1207745568269674/6090132003760639
- */
-
 // 商品列表
-export function goodsList(params = {}) {
+export function goodsList(data = {}) {
     return request({
-        url: `/api/goods`,
-        params
+        url: `user/getGoodsList`,
+        method: 'post',
+        data
     })
 }
 
@@ -17,5 +12,15 @@ export function goodsList(params = {}) {
 export function goodsDetail(good) {
     return request({
         url: `/api/goods/${good}`
+    })
+}
+
+// 加入购物车
+export function addShopCar(data = {}) {
+    console.log('1');
+    return request({
+        url: `user/addShopCar`,
+        method: 'post',
+        data
     })
 }

@@ -3,45 +3,48 @@
   <main>
     <!-- 侧边导航 -->
     <van-sidebar class="side" v-model="activeKey">
-      <van-collapse v-model="activeName" accordion>
-        <div class="mx-15 van-hairline--top-bottom"><van-sidebar-item title="全部分类" @click="onCat(0)" /></div>
-        <van-collapse-item v-for="item in categories" :key="item.id" :title="item.name" :name="item.id">
-          <van-sidebar-item v-for="sub in item.children" :key="sub.id" :title="sub.name" @click="onCat(sub.id)"/>
-        </van-collapse-item>
-      </van-collapse>
+      <van-sidebar-item title="全部分类" @click="onCat(0)" />
+      <van-sidebar-item
+        v-for="(item, index) in categories"
+        :key="index"
+        :title="item.catName"
+        @click="onCat(item.catCode)"
+      />
     </van-sidebar>
-
-    <!-- 右侧 tabs 选项 -->
-    <div class="tab">
-      <van-tabs @click-tab="onTab" color="#42b983" >
-        <van-tab title="销量排序" name="sales"></van-tab>
-        <van-tab title="价格排序" name="price"></van-tab>
-        <van-tab title="评论排序" name="comments_count"></van-tab>
-      </van-tabs>
-    </div>
 
     <!-- 列表商品 -->
     <div class="list">
       <!-- 下拉刷新，上拉加载 -->
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
-            v-model:loading="loading"
-            :finished="finished"
-            finished-text="没有更多了"
-            @load="onLoad"
+          v-model:loading="loading"
+          :finished="finished"
+          finished-text="没有更多了"
+          @load="onLoad"
         >
-          <!-- 商品卡片 -->
+          <!-- 
+            商品卡片
+            @click="goTo(item.goodsName)"
+            -->
           <van-card
-              v-for="(item, index) in list" :key="index"
-              :num="item.sales"
-              tag="流行"
-              :price="item.price.toFixed(2)"
-              :desc="item.updated_at.substr(0, 10)"
-              :title="item.title"
-              :thumb="item.cover_url"
-              lazy-load
-              @click="goTo(item.id)"
-          />
+            v-for="(item, index) in goodslist"
+            :key="index"
+            tag="流行"
+            :title="item.goodsName"
+            lazy-load
+            :thumb="imgurl(item)"
+          >
+            <template #bottom>
+              <div class="flex justify-between items-center mb-10">
+                <van-stepper v-model="item.orderNumDefault" min="1" />
+              </div>
+            </template>
+            <template #footer>
+              <van-button @click="addShop(item)" type="primary" plain size="mini"
+                >加入购物车</van-button
+              >
+            </template>
+          </van-card>
         </van-list>
       </van-pull-refresh>
     </div>
@@ -51,124 +54,115 @@
 </template>
 
 <script>
-import NavBar from "components/navbar/NavBar"
-import BackTop from "components/common/BackTop"
-import {ref, reactive, toRefs, onMounted} from "vue"
-import {useRoute, useRouter} from "vue-router"
-import {goodsList} from "network/goods"
-import {Toast} from "vant"
+import NavBar from "components/navbar/NavBar";
+import BackTop from "components/common/BackTop";
+import { ref, reactive, toRefs, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { getCategoryList } from "network/category";
+import { goodsList, addShopCar } from "network/goods";
+import { Toast } from "vant";
 
 export default {
   name: "Category",
   components: {
-    NavBar, BackTop
+    NavBar,
+    BackTop,
   },
   setup() {
-    const route = useRoute()
-    const router = useRouter()
+    const route = useRoute();
+    const router = useRouter();
 
     // 数据模型
     const state = reactive({
-      // 左侧 折叠 分类
-      activeName: 1,
-      activeKey: 0,
-      // 分类
       categories: [],
-      // tab切换
-      sales: {page: 1, list: []},
-      price: {page: 1, list: []},
-      comments_count: {page: 1, list: []},
       // 下拉刷新 上拉加载
       loading: false,
       finished: false,
       refreshing: false,
-      list: []
-    })
+      goodslist: [],
+      num: 10,
+    });
+
+    const imgurl = computed(() => {
+      return (value) => {
+        return `${CONFIG.baseImgURL}${value.goodsId}.png`;
+      };
+    });
 
     // 左侧分类
-    const cat = ref(0)
-    const onCat = id => {
-      cat.value = id
-      let orders = ['sales', 'price', 'comments_count']
-      orders.forEach(item => {
-        state[item].page = 1
-        state[item].list = []
-      })
-      state.loading = true
-      state.finished = false
-      state.refreshing = false
-      init()
-    }
-
-    // tab切换 排序
-    const tab = ref('sales')
-    const onTab = el => {
-      tab.value = el.name
-      state.loading = true
-      state.finished = false
-      state.refreshing = false
-      init()
-    }
+    const cat = ref(0);
+    const onCat = (id) => {
+      cat.value = id;
+      getGoods(id);
+    };
 
     // 数据方法
-    const init = () => {
-      let params = {}
-      // 分页
-      params['page'] = state[tab.value].page
-      // 搜索
-      if (search.value) params['title'] = search.value
-      // 左侧分类
-      if (cat.value) params['category_id'] = cat.value
-      // tab切换排序
-      params[tab.value] = 1
-      goodsList(params).then(res => {
-        if (res && res.status === 200) {
-          state[tab.value].list.push(...res.data.goods.data)
-          state[tab.value].page++
-          state.loading = false
-          if (!res.data.goods.next_page_url) {
-            state.finished = true
-          }
-        }
-      })
-      state.list = state[tab.value].list
-    }
-
-    // 上拉加载
-    const onLoad = () => setTimeout(() => {
-      if (state.refreshing) {
-        state.refreshing = false
-        state[tab.value].list = []
-        state[tab.value].page = 1
+    const getGoods = async (id) => {
+      Toast.clear();
+      state.goodslist = [];
+      const params = {
+        goodsCategory: id,
+      };
+      state.loading = true;
+      const { data: res } = await goodsList(params);
+      state.loading = false;
+      state.finished = true;
+      if (res.status != 0) {
+        Toast.fail('获取商品列表失败！');
       }
-      init()
-    }, 1000)
+      state.goodslist = res.results;
+      state.loading = false;
+    };
 
     // 下拉刷新
     const onRefresh = () => {
-      state.finished = false
-      state.loading = true
-      onLoad()
-    }
-
-    // 商品搜索
-    const search = ref('')
+      state.finished = false;
+      state.loading = true;
+      getGoods();
+    };
 
     // 跳转详情页
-    const goTo = id => router.push({name: 'Detail', params: {id}})
+    const goTo = (id) => router.push({ name: "Detail", params: { id } });
 
+    // 查询分类
+    const getCategoryListFun = async () => {
+      state.categories = [];
+      const { data: res } = await getCategoryList();
+      if (res.status == 0) {
+        state.categories = res.results;
+      }
+    };
+
+    // 加入购物车
+    const addShop = async (item) => {
+      const params = {
+        ...item,
+        orderNum: item.orderNumDefault,
+        orderNumDefault: undefined,
+      }
+      const { data: res } = await addShopCar(params);
+      if (res.status == 0) {
+        Toast.success('添加成功');
+      } else {
+        Toast.fail('添加失败');
+      }
+    };
     onMounted(() => {
       // 左侧分类
-      Toast.loading('加载中...')
-      goodsList().then(res => res && res.status === 200 && (state.categories = res.data.categories) && Toast.clear())
-      if (route.query.s) search.value = route.query.s
-    })
+      getCategoryListFun(); // 查询分类
+      getGoods(); // 查询商品
+    });
 
     return {
-      ...toRefs(state), onTab, onCat, onLoad, onRefresh, goTo
-    }
-  }
-}
+      ...toRefs(state),
+      onCat,
+      goTo,
+      onRefresh,
+      imgurl,
+      addShop,
+    };
+  },
+};
 </script>
 
 <style scoped lang="scss">
@@ -176,27 +170,18 @@ main {
   //侧栏
   .side {
     position: fixed;
-    top: 46px;
+    top: 0px;
     bottom: 50px;
     padding-top: 44px;
-    width: 130px;
+    width: 100px;
     background: white;
-  }
-
-  //顶部 tab
-  .tab {
-    position: fixed;
-    top: 46px;
-    left: 130px;
-    right: 0;
-    z-index: 1;
   }
 
   //列表商品
   .list {
     background: white;
-    margin: 90px 0 0 130px;
-    padding: 10px 10px 10px 0;
+    margin: 0px 0 0 130px;
+    padding: 0px 10px 10px 0;
   }
 }
 </style>

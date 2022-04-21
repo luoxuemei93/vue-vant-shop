@@ -3,7 +3,6 @@ import {request} from "./request"
 // 用户登录接口
 export function authLogin(data) {
     return request({
-        // url: `/auth/login`,
         url: `user/loginByUserName`,
         method: 'post',
         data

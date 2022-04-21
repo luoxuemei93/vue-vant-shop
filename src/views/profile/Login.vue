@@ -63,9 +63,8 @@ export default {
         const res = resBody.data;
         if (res.status == 0) {
           Toast.success('登录成功')
-          window.localStorage.setItem('token', res.token)
-          window.localStorage.setItem('userName', res.userName)
-
+          window.sessionStorage.setItem('token', res.token)
+          window.sessionStorage.setItem('userName', res.userName)
           // 更新登录状态和购物车数量
           store.dispatch('updateIsLogin', true)
           store.dispatch('updateCartNum')
