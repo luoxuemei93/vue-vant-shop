@@ -1,5 +1,5 @@
 import {createStore} from 'vuex'
-import {cartsList} from "network/carts"
+import {getShopCar} from "network/carts"
 
 export default createStore({
     state: {
@@ -23,7 +23,12 @@ export default createStore({
             commit('setIsLogin', payload)
         },
         updateCartNum({state, commit, getters}) {
-            cartsList().then(res => res && res.status === 200 && commit('setCartNum', res.data.data.length))
+            getShopCar().then(rsp =>{
+                const res = rsp.data;
+                if(res && res.status == 0){
+                    commit('setCartNum', res.results.length)
+                }
+            })
         }
     },
     // 计算属性

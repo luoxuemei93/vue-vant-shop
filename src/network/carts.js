@@ -1,49 +1,19 @@
-import {request} from "./request"
+import { request } from "./request";
 
-/*
-前台Api - 购物车
-https://www.showdoc.com.cn/1207745568269674/6090135175185450
- */
-
-// 添加购物车
-export function cartsAdd(data) {
-    return request({
-        url: `/api/carts`,
-        method: 'post',
-        data
-    })
-}
-
+// 查询购物车
 // 购物车列表
-export function cartsList(params = {}) {
-    return request({
-        url: `/api/carts`,
-        params
-    })
-}
-
-// 购物车数量改变
-export function cartsNum(cart, data) {
-    return request({
-        url: `/api/carts/${cart}`,
-        method: 'put',
-        data
-    })
+export function getShopCar() {
+  return request({
+    url: `/user/getShopCar`,
+    method: "post",
+  });
 }
 
 // 移出购物车
-export function cartsDelete(cart) {
+export function removeShopCar(data) {
     return request({
-        url: `/api/carts/${cart}`,
-        method: 'delete'
-    })
-}
-
-// 购物车改变选中
-export function cartsChecked(data) {
-    return request({
-        url: `/api/carts/checked`,
-        method: 'patch',
-        data
-    })
-}
+      url: `/user/removeShopCar`,
+      method: "post",
+      data,
+    });
+  }

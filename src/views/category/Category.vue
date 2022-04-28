@@ -20,7 +20,6 @@
           v-model:loading="loading"
           :finished="finished"
           finished-text="没有更多了"
-          @load="onLoad"
         >
           <!-- 
             商品卡片
@@ -29,7 +28,6 @@
           <van-card
             v-for="(item, index) in goodslist"
             :key="index"
-            tag="流行"
             :title="item.goodsName"
             lazy-load
             :thumb="imgurl(item)"
@@ -75,6 +73,7 @@ export default {
     // 数据模型
     const state = reactive({
       categories: [],
+      activeKey: "",
       // 下拉刷新 上拉加载
       loading: false,
       finished: false,
@@ -95,7 +94,7 @@ export default {
       cat.value = id;
       getGoods(id);
     };
-
+     
     // 数据方法
     const getGoods = async (id) => {
       Toast.clear();
