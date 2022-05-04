@@ -111,7 +111,6 @@ export default {
 
 <style scoped lang="scss">
 .list {
-  height: 570px;
   position: fixed;
   top: 45px;
   left: 0px;

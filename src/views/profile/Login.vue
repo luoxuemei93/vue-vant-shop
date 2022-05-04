@@ -69,6 +69,8 @@ export default {
           state.userName = ''
           state.password = ''
           router.push({ name: "Category" });
+        } else {
+          Toast.fail(res.message)
         }
       })
     }

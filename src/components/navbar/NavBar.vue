@@ -10,9 +10,9 @@
       <van-icon class="left" :name="leftIcon" size="18"/>
     </template>
     <template #title><span class="title">{{title}}</span></template>
-    <template #right>
+    <!-- <template #right>
       <van-icon class="search" name="search" size="18"/>
-    </template>
+    </template> -->
   </van-nav-bar>
 
 <!--  搜索框-->
