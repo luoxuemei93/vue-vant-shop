@@ -1,5 +1,5 @@
 /*初始化*/
-@import "https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css";
+@import "./normalize.css";
 :root {
     --color-text: #646566;
     --color-tint: #42b983;

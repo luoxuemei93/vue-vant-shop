@@ -4,8 +4,7 @@
     <!-- 个人信息 -->
     <div class="flex items-center m-15 p-10 bgDark border-radius-10">
       <div class="mr-10">
-        <!-- <van-image round src="~assets/logo.png" width="64" alt="64" /> -->
-        <van-image round width="64" height="64" lazy-load :src="logo" />
+        <van-image round width="64" height="64" lazy-load src="~assets/logo.png" />
       </div>
       <div class="white size-12 my-auto">
         <div class="my-5">登录名：{{ userName }}</div>
