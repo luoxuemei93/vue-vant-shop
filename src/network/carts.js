@@ -17,3 +17,12 @@ export function removeShopCar(data) {
       data,
     });
   }
+
+  // 确定下单
+  export function addOrder(data) {
+    return request({
+      url: `/user/addOrder`,
+      method: "post",
+      data,
+    });
+  }

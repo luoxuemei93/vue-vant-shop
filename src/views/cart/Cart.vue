@@ -36,13 +36,14 @@
     </van-empty>
     <!-- 订单结算 -->
     <van-submit-bar
-      :price="price * 100"
       :disabled="!list.length"
-      button-text="结算"
+      button-text="下单"
       style="bottom: 50px"
       @submit="onSubmit"
     >
-      <van-checkbox v-model="isCheckedAll" @click="checkAll">全选</van-checkbox>
+      <div class="van-submit-bar__text">
+        <van-checkbox v-model="isCheckedAll" @click="checkAll">全选</van-checkbox>
+      </div>
     </van-submit-bar>
   </main>
 </template>
@@ -55,8 +56,7 @@ import { useStore } from "vuex";
 import {
   getShopCar,
   removeShopCar,
-  cartsChecked,
-  cartsNum,
+  addOrder,
 } from "network/carts";
 import { Dialog, Toast } from "vant";
 
@@ -87,39 +87,50 @@ export default {
     // 页面标题
     const title = computed(() => `购物车(${state.list.length})`);
 
-    // 计算总价
-    const price = computed(() =>
-      state.list
-        .filter((item) => state.checkedIds.includes(item.id))
-        .reduce(
-          (prev, next) =>
-            (prev += parseFloat(next.goods.price) * parseInt(next.num)),
-          0
-        )
-    );
-
     // 复选状态
-    const changeGroup = () =>
-      cartsChecked({ cart_ids: state.checkedIds }).then(
-        (res) =>
-          res &&
-          res.status === 204 &&
-          (state.isCheckedAll = state.list.length === state.checkedIds.length)
-      );
+    const changeGroup = () =>{
+      console.log(state.checkedIds);
+      if(state.checkedIds.length == state.list.length) {
+        state.isCheckedAll = true;
+      } else {
+        state.isCheckedAll = false;
+      }
+    }
 
     // 全选反选
-    const checkAll = () =>
-      (state.checkedIds = state.isCheckedAll
-        ? state.list.map((el) => el.goodsId)
-        : []);
+    const checkAll = () =>{
+      if(!state.isCheckedAll) {
+        state.checkedIds = [];
+        state.isCheckedAll = false;
+      } else {
+        state.checkedIds = state.list.map((el) => el.goodsId)
+        state.isCheckedAll = true;
+      }
+    }
 
     // 商品结算
     const onSubmit = () => {
       if (!state.checkedIds.length) {
         return Toast("请选择商品");
       }
-      // 订单预览
-      router.push({ name: "OrderPreview" });
+      Dialog.confirm({
+        title: '确认下单',
+        message:
+          '是否确认下单？',
+      }).then( async() => {
+        const aryStr = state.checkedIds.join(",");
+        const params = {
+          orderCode: new Date().getTime() ,
+          goodsIdStr: aryStr
+        }
+        const { data: res } = await addOrder(params);
+        if (res.status == 0) {
+          await removeShopCarFun(aryStr);
+          getCatsListFun();
+        } else {
+          Toast("提交订单失败！");
+        }
+      }).catch(() => {})
     };
 
     // 查询购物车信息
@@ -134,7 +145,7 @@ export default {
     // 移出购物车
     const removeShopCarFun = async (goodsId) => {
       const params = {
-        goodsIdStr: [goodsId]
+        goodsIdStr: goodsId
       }
       const { data: res } = await removeShopCar(params);
       if (res.status == 0) {
@@ -150,7 +161,6 @@ export default {
     return {
       title,
       ...toRefs(state),
-      price,
       goTo,
       imgurl,
       removeShopCarFun,
