@@ -11,18 +11,18 @@ export function getShopCar() {
 
 // 移出购物车
 export function removeShopCar(data) {
-    return request({
-      url: `/user/removeShopCar`,
-      method: "post",
-      data,
-    });
-  }
+  return request({
+    url: `/user/removeShopCar`,
+    method: "post",
+    data,
+  });
+}
 
-  // 确定下单
-  export function addOrder(data) {
-    return request({
-      url: `/user/addOrder`,
-      method: "post",
-      data,
-    });
-  }
+// 确定下单
+export function addOrder(data) {
+  return request({
+    url: `/user/addOrder`,
+    method: "post",
+    data,
+  });
+}

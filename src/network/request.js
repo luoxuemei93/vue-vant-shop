@@ -12,8 +12,8 @@ export function request(config) {
   // 请求拦截
   instance.interceptors.request.use(
     (config) => {
-      const token = window.localStorage.getItem("token");
-      const userName = window.localStorage.getItem("userName");
+      const token = window.sessionStorage.getItem("token");
+      const userName = window.sessionStorage.getItem("userName");
       token && (config.headers.Authorization = `Bearer ${token}`);
       userName && (config.headers.username = userName)
       return config;

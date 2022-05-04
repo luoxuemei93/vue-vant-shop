@@ -8,7 +8,7 @@
         <van-image round width="64" height="64" lazy-load :src="logo" />
       </div>
       <div class="white size-12 my-auto">
-        <div class="my-5">登录名：{{ user.email }}</div>
+        <div class="my-5">登录名：{{ userName }}</div>
       </div>
     </div>
 
@@ -33,7 +33,6 @@ import NavBar from "components/navbar/NavBar";
 import { reactive, toRefs, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { authLogout } from "network/auth";
 import { Toast } from "vant";
 
 export default {
@@ -46,7 +45,7 @@ export default {
     const store = useStore();
     // 数据模型
     const state = reactive({
-      userName: "",
+      userName: window.sessionStorage.getItem("userName"),
       user: {
         avatar_url: "",
       },
@@ -55,15 +54,15 @@ export default {
     // 退出登录
     const logout = () => {
         Toast.success("退出成功");
-        window.localStorage.removeItem("token");
-        window.localStorage.removeItem("userName");
+        window.sessionStorage.removeItem("token");
+        window.sessionStorage.removeItem("userName");
         store.dispatch("updateIsLogin", false);
         router.push({ name: "Login" });
       };
 
     onMounted(() => {
       Toast.loading("加载中...");
-      state.user = window.localStorage.getItem("userName");
+      state.user = window.sessionStorage.getItem("userName");
       Toast.clear();
     });
     return {

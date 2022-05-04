@@ -8,15 +8,27 @@
       v-model="checkedIds"
       @change="changeGroup"
     >
-      <van-swipe-cell v-for="item in list" :key="item.goodsId" class="bgWhite mb-5">
+      <van-swipe-cell
+        v-for="item in list"
+        :key="item.goodsId"
+        class="bgWhite mb-5"
+      >
         <div class="flex justify-between my-5 mr-10 size-14">
           <div class="flex items-center">
-            <div class="pl-10"><van-checkbox :name="item.goodsId"></van-checkbox></div>
-            <img v-lazy="imgurl(item.goodsId)" :alt="item.goodsName" width="90"/>
+            <div class="pl-10">
+              <van-checkbox :name="item.goodsId"></van-checkbox>
+            </div>
+            <img
+              v-lazy="imgurl(item.goodsId)"
+              :alt="item.goodsName"
+              width="90"
+            />
             <div>{{ item.goodsName }}</div>
           </div>
           <div class="text-right my-auto">
-            <div class="mb-10 desc">{{ item.orderNum }}{{item.goodsUnit}}</div>
+            <div class="mb-10 desc">
+              {{ item.orderNum }}{{ item.goodsUnit }}
+            </div>
           </div>
         </div>
         <template #right>
@@ -42,7 +54,9 @@
       @submit="onSubmit"
     >
       <div class="van-submit-bar__text">
-        <van-checkbox v-model="isCheckedAll" @click="checkAll">全选</van-checkbox>
+        <van-checkbox v-model="isCheckedAll" @click="checkAll"
+          >全选</van-checkbox
+        >
       </div>
     </van-submit-bar>
   </main>
@@ -53,11 +67,7 @@ import NavBar from "components/navbar/NavBar";
 import { reactive, toRefs, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import {
-  getShopCar,
-  removeShopCar,
-  addOrder,
-} from "network/carts";
+import { getShopCar, removeShopCar, addOrder } from "network/carts";
 import { Dialog, Toast } from "vant";
 
 export default {
@@ -88,25 +98,24 @@ export default {
     const title = computed(() => `购物车(${state.list.length})`);
 
     // 复选状态
-    const changeGroup = () =>{
-      console.log(state.checkedIds);
-      if(state.checkedIds.length == state.list.length) {
+    const changeGroup = () => {
+      if (state.checkedIds.length == state.list.length) {
         state.isCheckedAll = true;
       } else {
         state.isCheckedAll = false;
       }
-    }
+    };
 
     // 全选反选
-    const checkAll = () =>{
-      if(!state.isCheckedAll) {
+    const checkAll = () => {
+      if (!state.isCheckedAll) {
         state.checkedIds = [];
         state.isCheckedAll = false;
       } else {
-        state.checkedIds = state.list.map((el) => el.goodsId)
+        state.checkedIds = state.list.map((el) => el.goodsId);
         state.isCheckedAll = true;
       }
-    }
+    };
 
     // 商品结算
     const onSubmit = () => {
@@ -114,23 +123,26 @@ export default {
         return Toast("请选择商品");
       }
       Dialog.confirm({
-        title: '确认下单',
-        message:
-          '是否确认下单？',
-      }).then( async() => {
-        const aryStr = state.checkedIds.join(",");
-        const params = {
-          orderCode: new Date().getTime() ,
-          goodsIdStr: aryStr
-        }
-        const { data: res } = await addOrder(params);
-        if (res.status == 0) {
-          await removeShopCarFun(aryStr);
-          getCatsListFun();
-        } else {
-          Toast("提交订单失败！");
-        }
-      }).catch(() => {})
+        title: "确认下单",
+        message: "是否确认下单？",
+      })
+        .then(async () => {
+          const aryStr = state.checkedIds.join(",");
+          const params = {
+            orderCode: new Date().getTime(),
+            goodsIdStr: aryStr,
+          };
+          const { data: res } = await addOrder(params);
+          if (res.status == 0) {
+            await removeShopCarFun(aryStr);
+            getCatsListFun();
+            state.checkedIds = [];
+            state.isCheckedAll = false;
+          } else {
+            Toast("提交订单失败！");
+          }
+        })
+        .catch(() => {});
     };
 
     // 查询购物车信息
@@ -139,14 +151,14 @@ export default {
       const { data: res } = await getShopCar();
       if (res.status == 0) {
         state.list = res.results;
-        store.dispatch('updateCartNum')
+        store.commit('setCartNum', state.list.length)
       }
     };
     // 移出购物车
     const removeShopCarFun = async (goodsId) => {
       const params = {
-        goodsIdStr: goodsId
-      }
+        goodsIdStr: goodsId,
+      };
       const { data: res } = await removeShopCar(params);
       if (res.status == 0) {
         getCatsListFun();
@@ -155,7 +167,7 @@ export default {
     onMounted(async () => {
       Toast.loading({ message: "加载中...", forbidClick: true });
       await getCatsListFun();
-      Toast.clear()
+      Toast.clear();
     });
 
     return {

@@ -59,7 +59,7 @@ import { useRoute, useRouter } from "vue-router";
 import { getCategoryList } from "network/category";
 import { goodsList, addShopCar } from "network/goods";
 import { Toast } from "vant";
-
+import { useStore } from "vuex";
 export default {
   name: "Category",
   components: {
@@ -69,7 +69,8 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-
+    const store = useStore();
+    
     // 数据模型
     const state = reactive({
       categories: [],
@@ -142,6 +143,7 @@ export default {
       const { data: res } = await addShopCar(params);
       if (res.status == 0) {
         Toast.success('添加成功');
+        store.dispatch("updateCartNum");
       } else {
         Toast.fail('添加失败');
       }

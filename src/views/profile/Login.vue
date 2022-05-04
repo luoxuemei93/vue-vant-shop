@@ -21,7 +21,7 @@
           placeholder="密码"
           :rules="[{ required: true, message: '请填写密码' }]"
       />
-      <div class="m-15 dark" @click="toRegister">没有账号，立即注册</div>
+      <!-- <div class="m-15 dark" @click="toRegister">没有账号，立即注册</div> -->
       <div class="m-15">
         <van-button round block type="success" native-type="submit">登录</van-button>
       </div>
@@ -48,10 +48,8 @@ export default {
 
     // 数据模型
     const state = reactive({
-      // email: 'test@a.com',
-      // password: '123123'
-      userName: "admin",
-      password: "123456",
+      userName: "",
+      password: "",
     })
 
     // 注册跳转
@@ -70,7 +68,7 @@ export default {
           store.dispatch('updateCartNum')
           state.userName = ''
           state.password = ''
-          router.back()
+          router.push({ name: "Category" });
         }
       })
     }

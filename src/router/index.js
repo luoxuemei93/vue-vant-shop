@@ -33,7 +33,8 @@ const routes = [
         name: 'Category',
         component: Category,
         meta: {
-            title: '商品分类'
+            title: '商品分类',
+            isAuthRequired: true
         }
     },
     // 详情页
@@ -42,7 +43,8 @@ const routes = [
         name: 'Detail',
         component: Detail,
         meta: {
-            title: '商品详情'
+            title: '商品详情',
+            isAuthRequired: true
         }
     },
     // 购物车
@@ -157,10 +159,6 @@ const routes = [
     {
         path: '/about',
         name: 'About',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        // component: () => import(/* webpackChunkName: "about" */ '../views/about/About.vue')
         component: About,
         meta: {
             title: '关于我们',

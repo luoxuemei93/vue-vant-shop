@@ -4,7 +4,7 @@ import {getShopCar} from "network/carts"
 export default createStore({
     state: {
         user: {
-            isLogin: !!window.localStorage.getItem('token'), // 登录状态
+            isLogin: !!window.sessionStorage.getItem('token'), // 登录状态
             cartNum: 0, // 购物车数量
         }
     },
